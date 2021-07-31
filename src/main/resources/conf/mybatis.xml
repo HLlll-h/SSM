@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    
+
+    <settings>
+        <!--设置mybatis输出日志-->
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+    </settings>
+
+    <!--设置别名-->
+    <typeAliases>
+        <!--name:实体bean/实体类所在的包名-->
+        <package name="com.whh.domain"/>
+    </typeAliases>
+
+    <!--分页插件pageHelper配置-->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor"></plugin>
+    </plugins>
+
+    <mappers>
+        <!-- sql mapper(sql映射文件)的位置-->
+        <!--name：mapper文件所在包名,这个包中的所有mapper.xml一次都能加载-->
+        <package name="com.whh.dao"/>
+    </mappers>
+</configuration>

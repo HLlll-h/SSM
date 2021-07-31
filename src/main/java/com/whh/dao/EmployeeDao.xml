@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.whh.dao.EmployeeDao"><!--dao接口全类名-->
+
+    <insert id="insertEmployee">
+        insert into employee(empName,gender,email,dId)
+        values (#{empName},#{gender},#{email},#{dId})
+    </insert>
+
+    <delete id="deleteEmployeeById">
+        delete from employee where empId = #{empId}
+    </delete>
+
+    <update id="updateEmployee">
+        update employee set gender = #{gender},email = #{email},dId = #{dId}
+    </update>
+
+    <select id="selectById" resultType="com.whh.domain.Employee"><!--id接口中的方法名;返回值类型的全限定名称-->
+        select empId,empName,gender,email,dId from employee where empId = #{empId}
+    </select>
+
+    <select id="selectAll" resultType="com.whh.domain.Employee"><!--id接口中的方法名;返回值类型的全限定名称-->
+        select empId,empName,gender,email,dId from employee order by empId
+    </select>
+
+</mapper>
