@@ -18,7 +18,10 @@
 
     <!--分页插件pageHelper配置-->
     <plugins>
-        <plugin interceptor="com.github.pagehelper.PageInterceptor"></plugin>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <!--分页参数合理化 如在第一页时首页和上一页不能点击-->
+            <property name="reasonable" value="true"/>
+        </plugin>
     </plugins>
 
     <mappers>
