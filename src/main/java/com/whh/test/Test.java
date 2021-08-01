@@ -56,4 +56,12 @@ public class Test {
         System.out.println("====="+employee);
     }
 
+    @org.junit.Test
+    public void test6(){
+        ApplicationContext ac = new ClassPathXmlApplicationContext("conf/applicationContext.xml");
+        EmployeeDao dao = (EmployeeDao) ac.getBean("employeeDao");
+        List<Employee> employees = dao.selectLike("李");
+        System.out.println("====="+employees);
+    }
+
 }

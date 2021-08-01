@@ -54,4 +54,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         Integer nums = employeeDao.deleteEmployeeById(empId);
         return nums;
     }
+
+    @Override
+    public List<Employee> queryLikeByName(String empName) {
+        List<Employee> employees = employeeDao.selectLike(empName);
+        return employees;
+    }
 }

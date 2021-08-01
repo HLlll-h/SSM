@@ -137,19 +137,33 @@
     </div>
 </div>
 
-<%--第二行 按钮--%>
+<%--第二行 搜索框--%>
+<div class="row">
+        <div class="col-md-4 col-md-offset-4">
+
+            <div class="input-group col-md-6" style="margin-top:0px" style="position:relative">
+                <input type="text" class="form-control" id="search" placeholder="请输入姓名" />
+                <span class="input-group-btn">
+                    <button class="btn btn-info btn-search" id="search_btn">查找</button>
+                </span>
+            </div>
+
+        </div>
+</div>
+
+<%--第三行 按钮--%>
 <div class="row">
     <div class="col-md-4 col-md-offset-8">
-        <button type="button" class="btn btn-primary btn-lg" id="emp_add_modal_btn">
+        <button type="button" class="btn btn-primary" id="emp_add_modal_btn">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增
         </button>
-        <button type="button" class="btn btn-danger btn-lg" id="emp_delete_all_btn">
+        <button type="button" class="btn btn-danger" id="emp_delete_all_btn">
             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 删除
         </button>
     </div>
 </div>
 
-<%--第三行 数据表--%>
+<%--第四行 数据表--%>
 <div class="row">
     <div class="col-md-12">
         <table class="table table-hover" id="emps_table">
@@ -174,7 +188,7 @@
     </div>
 </div>
 
-<%--第四行 分页条--%>
+<%--第五行 分页条--%>
 <div class="row">
     <div class="col-md-3 col-md-offset-3" id="page_info_area">
 
@@ -243,11 +257,11 @@
             if(item.dId==4){
                 var dIdTd = $("<td></td>").append("实创部");
             }
-            var editBtn = $("<button></button>").addClass("btn btn-primary edit_btn")
+            var editBtn = $("<button></button>").addClass("btn btn-primary btn-sm edit_btn")
                 .append($("<span></span>").addClass("glyphicon glyphicon-edit")).append(" 编辑");
            //为编辑按钮添加一个自定义属性，表示当前id
             editBtn.attr("edit-id",item.empId);
-            var delBtn = $("<button></button>").addClass("btn btn-danger delete_btn")
+            var delBtn = $("<button></button>").addClass("btn btn-danger btn-sm delete_btn")
                 .append($("<span></span>").addClass("glyphicon glyphicon-trash")).append(" 删除");
             //为删除按钮添加一个自定义属性，表示当前id
             delBtn.attr("del-id",item.empId);
@@ -667,10 +681,106 @@
 
 
 
+//===============================================================================
+//===================模糊查询=================================================
+//===============================================================================
+
+    //给搜索按钮绑定单击事件
+    $("#search_btn").click(function (){
+        // alert(searchName)
+        to_page_search(1);
+    });
+
+    function to_page_search(pageNo){
+        //获取搜索框参数
+        var searchName = $("#search").val();
+        $.ajax({
+            url:"empslike",
+            dataType:"json",
+            data:{
+                "pageNo":pageNo,
+                empName:searchName
+            },
+            success:function (data){
+                if(data.extend.pageInfo.list.length == 0){
+                    alert("未找到！");
+                }else {
+                    // console.log(data)
+                    //1.解析并显示员工信息
+                    build_emps_table(data);
+                    //2.解析并显示分页信息(左)
+                    build_page_info(data);
+                    //3.解析并显示分页条(右)
+                    build_page_nav_search(data);
+                }
+            }
+        });
+    }
+
+    //解析分页条(右)
+    function build_page_nav_search(data){
+        //再次发送ajax请求时，清空原有的数据
+        $("#page_nav_area").empty();
+
+        var ul = $("<ul></ul>").addClass("pagination");
+
+        var firstPageLi = $("<li></li>").append($("<a></a>").append("首页").attr("href","#"));
+        var prePageLi = $("<li></li>").append($("<a></a>").append("&laquo;"));
+        if(data.extend.pageInfo.hasPreviousPage == false){
+            //如果没有前一页(即在第一页)，则给首页和前一页加上不可点击效果
+            firstPageLi.addClass("disabled");
+            prePageLi.addClass("disabled");
+        }else{
+            //首页和上一页添加单击事件
+            firstPageLi.click(function (){
+                to_page_search(1);
+            });
+            prePageLi.click(function (){
+                to_page_search(data.extend.pageInfo.pageNum-1);
+            });
+        }
+
+        var nextPageLi = $("<li></li>").append($("<a></a>").append("&raquo;"));
+        var lastPageLi = $("<li></li>").append($("<a></a>").append("末页").attr("href","#"));
+        if(data.extend.pageInfo.hasNextPage == false){
+            //如果没有后一页(即在最后一页)，则给首页和前一页加上不可点击效果
+            nextPageLi.addClass("disabled");
+            lastPageLi.addClass("disabled");
+        }else{
+            //末页和下一页添加单击事件
+            nextPageLi.click(function (){
+                to_page_search(data.extend.pageInfo.pageNum+1);
+            });
+            lastPageLi.click(function (){
+                to_page_search(data.extend.pageInfo.pages);
+            });
+        }
 
 
+        //添加首页和上一页
+        ul.append(firstPageLi).append(prePageLi);
 
+        //遍历 [1,2,3,4,5]
+        $.each(data.extend.pageInfo.navigatepageNums,function (index,items){
 
+            var numLi = $("<li></li>").append($("<a></a>").append(items));
+            if(data.extend.pageInfo.pageNum == items){
+                //如果当前页和分页条页码一致时，给页码加上高亮
+                numLi.addClass("active");
+            }
+            //给分页条的各元素绑定单击事件
+            numLi.click(function (){
+                to_page_search(items);
+            });
+            ul.append(numLi);
+        });
+        //添加末页和下一页
+        ul.append(nextPageLi).append(lastPageLi);
+
+        //把ul加入到nav
+        var navEle = $("<nav></nav>").append(ul);
+        navEle.appendTo("#page_nav_area");
+    }
 
 
 

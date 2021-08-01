@@ -170,6 +170,24 @@ public class EmployeeController {
 
     }
 
+    /**
+     * 模糊查询根据empName
+     */
+    @RequestMapping("/empslike")
+    @ResponseBody
+    public Msg getEmployeesLike(@RequestParam(value = "pageNo",defaultValue = "1")Integer pageNo,String empName){
+        //使用pageHelper分页插件
+        //在查询之前调用startPage 传入页码，以及每页的条数
+        PageHelper.startPage(pageNo,5);
+        //startPage后的查询就是分页查询
+        List<Employee> employees = employeeService.queryLikeByName(empName);
+        //使用pageInfo包装查询后的结果,只需将pageInfo交给页面即可
+        //封装了详细的分页信息 包括查询出的数据 传入连续显示的页数5[1,2,3,4,5]
+        PageInfo page = new PageInfo(employees,5);
+        return Msg.success().add("pageInfo",page);
+    }
+
+
 
 
 }

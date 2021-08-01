@@ -37,5 +37,10 @@ public interface EmployeeService {
      */
     Integer deleteEmployeeById(Integer empId);
 
+    /**
+     * 模糊查询根据empName
+     */
+    List<Employee> queryLikeByName(String empName);
+
 
 }

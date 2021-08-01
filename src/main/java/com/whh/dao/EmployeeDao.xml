@@ -29,4 +29,8 @@
         select empId,empName,gender,email,dId from employee where empName = #{empName}
     </select>
 
+    <select id="selectLike" resultType="com.whh.domain.Employee"><!--id接口中的方法名;返回值类型的全限定名称-->
+        select empId,empName,gender,email,dId from employee where empName like "%"#{empName}"%"
+    </select>
+
 </mapper>

@@ -37,4 +37,9 @@ public interface EmployeeDao {
     Employee selectByName(String empName);
 
 
+    /**
+     * 模糊查询根据empName
+     */
+    List<Employee> selectLike(String empName);
+
 }
