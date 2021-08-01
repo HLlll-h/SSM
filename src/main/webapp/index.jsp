@@ -665,18 +665,23 @@
         empNames = empNames.substring(0,empNames.length-1);
         //去除empIdsStr多余的-
         del_empIdsStr = del_empIdsStr.substring(0,del_empIdsStr.length-1);
-        if (confirm("确认删除["+ empNames +"]吗？")){
-            //发送ajax请求 删除多个
-            $.ajax({
-                url:"emp/"+del_empIdsStr,
-                type:"DELETE",
-                success:function (data){
-                    // alert(data.msg);
-                    //回到被删除记录的页面
-                    to_page(currentPage);
-                }
-            });
+        if(empNames.length == 0){
+            alert("请选择要删除的人员！");
+        }else{
+            if (confirm("确认删除["+ empNames +"]吗？")){//确定时发送ajax请求
+                //发送ajax请求 删除多个
+                $.ajax({
+                    url:"emp/"+del_empIdsStr,
+                    type:"DELETE",
+                    success:function (data){
+                        // alert(data.msg);
+                        //回到被删除记录的页面
+                        to_page(currentPage);
+                    }
+                });
+            }
         }
+
     });
 
 
