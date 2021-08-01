@@ -143,7 +143,7 @@
         <button type="button" class="btn btn-primary btn-lg" id="emp_add_modal_btn">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增
         </button>
-        <button type="button" class="btn btn-danger btn-lg">
+        <button type="button" class="btn btn-danger btn-lg" id="emp_delete_all_btn">
             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> 删除
         </button>
     </div>
@@ -155,6 +155,9 @@
         <table class="table table-hover" id="emps_table">
             <thead>
                 <tr>
+                    <td>
+                        <input type="checkbox" id="check_all" />
+                    </td>
                     <td>序号</td>
                     <td>姓名</td>
                     <td>性别</td>
@@ -223,6 +226,7 @@
         var emps = data.extend.pageInfo.list;
         //遍历employee数据
         $.each(emps,function (index,item){
+            var checkBoxTd = $("<td><input type = 'checkbox' class='check_item' /></td>")
             var empIdTd = $("<td></td>").append(item.empId);
             var empNameTd = $("<td></td>").append(item.empName);
             var genderTd = $("<td></td>").append(item.gender=='M'?"男":"女");
@@ -245,11 +249,15 @@
             editBtn.attr("edit-id",item.empId);
             var delBtn = $("<button></button>").addClass("btn btn-danger delete_btn")
                 .append($("<span></span>").addClass("glyphicon glyphicon-trash")).append(" 删除");
+            //为删除按钮添加一个自定义属性，表示当前id
+            delBtn.attr("del-id",item.empId);
+
             var btnTd = $("<td></td>").append(editBtn).append(" ").append(delBtn);
 
 
             //append方法执行完成以后还是返回原来的元素
-            $("<tr></tr>").append(empIdTd)
+            $("<tr></tr>").append(checkBoxTd)
+                .append(empIdTd)
                 .append(empNameTd)
                 .append(genderTd)
                 .append(emailTd)
@@ -582,6 +590,88 @@
         });
 
     })
+
+//===============================================================================
+//===================删除部分=================================================
+//===============================================================================
+
+//===================单个删除============================================================
+
+    //给删除按钮绑定on单击事件
+    $(document).on("click",".delete_btn",function (){
+        //删除确认
+        var empName = $(this).parents("tr").find("td:eq(2)").text();
+        // alert($(this).parents("tr").find("td:eq(1)").text());
+        if(confirm("确认删除["+ empName +"]吗？")){
+            //确认删除 发送ajax请求删除
+            $.ajax({
+                url:"emp/"+$(this).attr("del-id"),
+                dataType:"json",
+                type:"DELETE",
+                success:function (data){
+                    // alert(data.msg);
+                    //回到被删除记录的页面
+                    to_page(currentPage);
+            }
+            });
+        }
+    });
+
+
+
+//===================多个删除============================================================
+
+    //给多选框绑定单击事件 完成全选/全不选
+    $("#check_all").click(function (){
+        //attr()获取自定义属性值
+        //prop()修改和读取dom原生属性的值
+        $(".check_item").prop("checked",$(this).prop("checked"))
+    });
+
+    //若选满了  主选框也选中
+    $(document).on("click",".check_item",function (){
+        //判断是否选中了5个
+        var flag = $(".check_item:checked").length==$(".check_item").length;
+        $("#check_all").prop("checked",flag);
+    });
+
+
+    //多个删除
+    $("#emp_delete_all_btn").click(function (){
+
+        var empNames = "";
+        var del_empIdsStr = "";
+
+            $.each($(".check_item:checked"),function (){
+            empNames += $(this).parents("tr").find("td:eq(2)").text()+",";
+            del_empIdsStr += $(this).parents("tr").find("td:eq(1)").text()+"-";
+
+        });
+        //去除empNames多余的逗号,
+        empNames = empNames.substring(0,empNames.length-1);
+        //去除empIdsStr多余的-
+        del_empIdsStr = del_empIdsStr.substring(0,del_empIdsStr.length-1);
+        if (confirm("确认删除["+ empNames +"]吗？")){
+            //发送ajax请求 删除多个
+            $.ajax({
+                url:"emp/"+del_empIdsStr,
+                type:"DELETE",
+                success:function (data){
+                    // alert(data.msg);
+                    //回到被删除记录的页面
+                    to_page(currentPage);
+                }
+            });
+        }
+    });
+
+
+
+
+
+
+
+
 
 
 

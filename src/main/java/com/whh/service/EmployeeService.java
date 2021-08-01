@@ -32,5 +32,10 @@ public interface EmployeeService {
      */
     Integer updateEmployee(Employee employee);
 
+    /**
+     * 删除单条记录
+     */
+    Integer deleteEmployeeById(Integer empId);
+
 
 }

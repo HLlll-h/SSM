@@ -1,5 +1,6 @@
 package com.whh.controller;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.whh.domain.Employee;
@@ -139,6 +140,35 @@ public class EmployeeController {
         return Msg.success();
     }
 
+    /**
+     * 删除单个记录
+     */
+    /*@RequestMapping(value = "/emp/{empId}",method = RequestMethod.DELETE)
+    @ResponseBody
+    public Msg deleteEmployeeById(@PathVariable("empId") Integer empId){
+        employeeService.deleteEmployeeById(empId);
+        return Msg.success();
+    }*/
+
+    /**
+     * 删除单个记录+多个删除二合一
+     * 多个删除：1-2-3
+     * 单个删除：1
+     */
+    @RequestMapping(value = "/emp/{empIds}",method = RequestMethod.DELETE)
+    @ResponseBody
+    public Msg deleteEmployeeById(@PathVariable("empIds") String empIds){
+        if(empIds.contains("-")){//删除多个
+            String[] str_empIds = empIds.split("-");
+            for (String str_empId : str_empIds) {
+                employeeService.deleteEmployeeById(Integer.parseInt(str_empId));
+            }
+        }else{//删除单个
+            employeeService.deleteEmployeeById(Integer.parseInt(empIds));
+        }
+        return Msg.success();
+
+    }
 
 
 

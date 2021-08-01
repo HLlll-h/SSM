@@ -48,4 +48,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         Integer nums = employeeDao.updateEmployee(employee);
         return nums;
     }
+
+    @Override
+    public Integer deleteEmployeeById(Integer empId) {
+        Integer nums = employeeDao.deleteEmployeeById(empId);
+        return nums;
+    }
 }
