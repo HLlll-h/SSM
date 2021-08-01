@@ -1,5 +1,9 @@
 package com.whh.dao;
 
+import com.whh.domain.Department;
+
+import java.util.List;
+
 public interface DepartmentDao {
 
     /**
@@ -8,4 +12,8 @@ public interface DepartmentDao {
     String selectName(Integer depId);
 
 
+    /**
+     * 查询所有的department
+     */
+    List<Department> selectAll();
 }

@@ -12,5 +12,15 @@ public interface EmployeeService {
      */
     List<Employee> queryAllEmployee();
 
+    /**
+     * 新增employee
+     */
+    Integer addEmployee(Employee employee);
+
+    /**
+     * 用于检查用户名是否可用
+     */
+    Employee queryEmployeeByName(String empName);
+
 
 }

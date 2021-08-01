@@ -7,7 +7,67 @@
     <%@include file="/head.jsp"%>
 </head>
 <body>
+<%--===============新增 模态窗==================================================--%>
 
+<div class="modal fade" id="empAddModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">新增</h4>
+            </div>
+            <div class="modal-body">
+                    <%--新增表单--%>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">姓名</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="empName" class="form-control" id="empName_add_input" placeholder="李狗蛋">
+                                <span class="help-block"></span><%--校验失败信息--%>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">邮箱</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="email" class="form-control" id="email_add_input" placeholder="ligoudan@163.com">
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">性别</label>
+                            <div class="col-sm-10">
+                                <label class="radio-inline">
+                                    <input type="radio" name="gender" id="gender1_add_input" value="M" checked="checked"> 男
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="gender" id="gender2_add_input" value="F"> 女
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">部门</label>
+                            <div class="col-sm-5">
+                                <%----%>
+                                <select class="form-control" name="dId" id="dept_add_select">
+
+                                </select>
+                            </div>
+                        </div>
+
+                    </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="emp_add_btn">新增</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<%--===============employee表展示==================================================--%>
 <%--第一行 标题--%>
 <div class="row">
     <div class="col-md-12">
@@ -18,7 +78,7 @@
 <%--第二行 按钮--%>
 <div class="row">
     <div class="col-md-4 col-md-offset-8">
-        <button type="button" class="btn btn-primary btn-lg">
+        <button type="button" class="btn btn-primary btn-lg" id="emp_add_modal_btn">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增
         </button>
         <button type="button" class="btn btn-danger btn-lg">
@@ -63,9 +123,11 @@
 <%--================JavaScript部分 用于ajax请求====================================================--%>
 <%--============================================================================--%>
 
-
-<%--=================employee列表展示+分页条(查询)================================================--%>
 <script type="text/javascript">
+//===============================================================================
+<%--=================employee列表展示+分页条(查询)================================================--%>
+//===============================================================================
+
     //1.页面加载完成后，直接发送ajax请求
     $(function (){
         to_page(1)
@@ -209,8 +271,195 @@
         navEle.appendTo("#page_nav_area");
     }
 
-</script>
+//===============================================================================
+//===================新增employee部分=================================================
+//===============================================================================
 
+    //给新增按钮绑定单击事件
+    $("#emp_add_modal_btn").click(function (){
+        //清除表单数据(表单重置+表单样式)
+        $("#empAddModal form")[0].reset();
+        //清空表单样式
+        $("#empAddModal form").find("*").removeClass("has-error has-success");
+        $("#empAddModal form").find(".help-block").text("");
+
+
+        //发送ajax请求查出部门信息 显示在新增下拉列表中
+        $("#dept_add_select").empty();
+        getDepartments();
+
+        //点击按钮调出新增模态窗
+        $("#empAddModal").modal({
+            backdrop:"static"
+        });
+    });
+
+    //查出所有部门信息
+    function getDepartments(){
+        $.ajax({
+            url:"getAllDepartments",
+            dataType: "json",
+            success:function (data){
+                // console.log(data)
+                //显示部门信息在下拉列表中
+                // $("#dept_add_select").append()
+                //遍历部门信息
+                $.each(data.extend.depts,function (){
+                    var optionEle = $("<option></option>").append(this.depName).attr("value",this.depId);
+                    optionEle.appendTo("#dept_add_select");
+                });
+            }
+        });
+    }
+//======================校验新增表单数据(用户名+邮箱)==============================================
+
+    function validate_add_from(){
+        //1.拿到要校验的数据 使用正则表达式
+        var empName = $("#empName_add_input").val();
+        var regName = /(^[a-zA-Z0-9_-]{6,16}$)|(^[\u2E80-\u9FFF]{2,5})/;
+        if(!regName.test(empName)){//校验不符合
+            // alert("用户名需为3-16位字母数字下划线或2-5位中文");
+            // $("#empName_add_input").parent().addClass("has-error");
+            // $("#empName_add_input").next("span").text("用户名需为3-16位字母数字下划线或2-5位中文")
+
+            show_validate_msg("#empName_add_input", "error", "用户名必须是6-16位数字，字母或者_-，也可以是2-5位中文组成");
+            return false;
+
+        }else{//校验符合要求
+            // $("#empName_add_input").parent().addClass("has-success");
+            // $("#empName_add_input").next("span").text("用户名符合要求")
+
+            show_validate_msg("#empName_add_input", "success", "");
+
+        }
+        //2.校验邮箱信息
+        var email = $("#email_add_input").val();
+        var regEmail =  /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+        if(!regEmail.test(email)){
+            // alert("邮箱格式需为");
+            //再次请求时需清空之前的
+
+            // $("#email_add_input").parent().addClass("has-error");
+            // $("#email_add_input").next("span").text("邮箱格式不正确");
+
+            show_validate_msg("#email_add_input", "error", "邮箱格式不正确!");
+            return false;
+        }else {//校验符合要求
+            // $("#email_add_input").parent().addClass("has-success");
+            // $("#email_add_input").next("span").text("邮箱格式正确");
+
+            show_validate_msg("#email_add_input", "success", "");
+        }
+
+        return true;
+    }
+
+    //这里将校验结果的提示信息全部抽取出来
+    function show_validate_msg(ele, status, msg) {
+        // 当一开始输入不正确的用户名之后，会变红。
+        // 但是之后输入了正确的用户名却不会变绿，
+        // 因为has-error和has-success状态叠加了。
+        // 所以每次校验的时候都要清除当前元素的校验状态。
+        $(ele).parent().removeClass("has-success has-error");
+        //提示信息默认为空
+        $(ele).next("span").text("");
+
+        if("success" == status){
+            //如果校验成功
+            $(ele).parent().addClass("has-success");
+            $(ele).next("span").text(msg);
+        }else if("error" == status){
+            //如果校验失败
+            $(ele).parent().addClass("has-error");
+            $(ele).next("span").text(msg);
+        }
+    }
+//=====================判断用户名是否重复ajax请求===================================================
+    $("#empName_add_input").change(function (){//绑定change事件发起ajax请求
+        var empName = $("#empName_add_input").val();
+        $.ajax({
+            url:"checkEmpName",
+            dataType:"json",
+            data:{
+                "empName":empName
+            },
+            success:function (data){
+                if(data.extend.result=="用户名已存在" || data.extend.result=="用户名需为3-16位字母数字下划线或2-5位中文"){
+                    show_validate_msg("#empName_add_input","error",data.extend.result)
+                    $("#emp_add_btn").attr("ajax-va","error");
+                }
+                if(data.extend.result=="用户名可用"){
+                    show_validate_msg("#empName_add_input","success","用户名可用")
+                    $("#emp_add_btn").attr("ajax-va","success");
+                }
+
+            }
+        })
+    })
+
+
+
+
+
+//====================发起ajax请求 保存新增数据===================================================
+    //给模态窗新增按钮绑定单击事件发送ajax请求
+    $("#emp_add_btn").click(function (){
+        //1.先对要提交给服务器的数据进行校验
+        if(!validate_add_from()){
+            return false;
+        }
+        //判断ajax请求的用户名是否可用 如果可用
+        if($(this).attr("ajax-va")=="error"){
+            return false;
+        }
+        //2.新增模态窗中提交表单发送ajax请求
+        //获取请求参数 alert($("#empAddModal form").serialize());
+        $.ajax({
+            url:"emp",
+            type:"POST",//get请求会乱码
+            dataType:"json",
+            data:$("#empAddModal form").serialize(),
+            success:function (data){
+                // alert(data.msg);
+
+                //JSR303校验
+                if(data.code == 200){//校验成功
+                    //新增成功需
+                    // 1.关闭新增模态窗
+                    $("#empAddModal").modal('hide');
+                    // 2.来到列表的最后一页查看新增的数据
+                    to_page(99999);//pageHelper可以传入一个大于总页码的数就默认是最后一页
+                }else{//后端校验失败
+                    //显示失败信息
+                    if(undefined != data.extend.errorFields.email){
+                        //显示邮箱错误信息
+                        show_validate_msg("#email_add_input","error",data.extend.errorFields.email)
+                    }
+                    if(undefined != data.extend.errorFields.empName){
+                        //显示名字错误信息
+                        show_validate_msg("#empName_add_input","error",data.extend.errorFields.empName)
+                    }
+                }
+
+
+
+
+            }
+
+        })
+    })
+
+
+
+
+
+
+
+
+
+
+
+</script>
 
 
 </body>

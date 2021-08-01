@@ -5,6 +5,8 @@ import java.util.Map;
 
 /**
  * 通用的PageInfo返回类
+ * 用于ajax请求增删改查的返回
+ * 可以新增状态加上原本返回的数据
  */
 public class Msg {
 

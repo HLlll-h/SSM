@@ -8,4 +8,8 @@
         select depName from department where depId = #{depId}
     </select>
 
+    <select id="selectAll" resultType="com.whh.domain.Department"><!--id接口中的方法名;返回值类型的全限定名称-->
+        select depId,depName from department order by depId
+    </select>
+
 </mapper>

@@ -8,12 +8,18 @@ import com.whh.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 处理employee的CRUD
@@ -24,6 +30,8 @@ public class EmployeeController {
     @Autowired
     @Qualifier("employeeServiceImpl")
     private EmployeeService employeeService;
+
+
 
     //使用ajax请求查询
     @RequestMapping("/emps")
@@ -60,5 +68,50 @@ public class EmployeeController {
 
         return mv;
     }
+
+
+    //新增employee
+    @RequestMapping(value = "/emp",method = RequestMethod.POST)
+    @ResponseBody
+    //@Valid注解是使用CSR3030校验 BindingResult result封装校验的结果
+    public Msg addEmp(@Valid Employee employee, BindingResult result){
+        //CSR3030校验---防止绕过前端校验
+        if(result.hasErrors()){//校验失败
+            Map<String,Object> map = new HashMap<>();
+            List<FieldError> errors = result.getFieldErrors();
+            for (FieldError error : errors) {
+                System.out.println("错误的字段名:"+error.getField());
+                System.out.println("错误信息:"+error.getDefaultMessage());
+                map.put(error.getField(),error.getDefaultMessage());
+            }
+            return Msg.fail().add("errorFields",map);
+        }else {
+            employeeService.addEmployee(employee);
+            return Msg.success();
+        }
+    }
+
+    //检查用户名是否重复
+    @RequestMapping(value = "/checkEmpName")
+    @ResponseBody
+    public Msg checkEmpName(String empName){
+        //先判断用户名格式是否合法
+        String regx = "(^[a-zA-Z0-9_-]{6,16}$)|(^[\\u2E80-\\u9FFF]{2,5})";
+        if(!empName.matches(regx)){//不合法
+            return Msg.fail().add("result","用户名需为3-16位字母数字下划线或2-5位中文");
+        }else{//用户名格式合法再判断用户名是否重复
+            Employee employee = employeeService.queryEmployeeByName(empName);
+            String result = "";
+            if(employee == null){//用户名可用
+                result = "用户名可用";
+            }else{
+                result = "用户名已存在";
+            }
+            return Msg.success().add("result",result);
+        }
+
+    }
+
+
 
 }

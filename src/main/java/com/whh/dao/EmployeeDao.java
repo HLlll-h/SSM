@@ -31,5 +31,10 @@ public interface EmployeeDao {
      */
     List<Employee> selectAll();
 
+    /**
+     * 查询Employee表一条记录根据empName
+     */
+    Employee selectByName(String empName);
+
 
 }
