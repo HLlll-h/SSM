@@ -7,6 +7,68 @@
     <%@include file="/head.jsp"%>
 </head>
 <body>
+
+
+<%--===============修改 模态窗==================================================--%>
+
+<div class="modal fade" id="empUpdateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">修改</h4>
+            </div>
+            <div class="modal-body">
+                    <%--修改表单--%>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">姓名</label>
+                            <div class="col-sm-10">
+<%--                                <input type="text" name="empName" class="form-control" id="empName_update_input" placeholder="李狗蛋">--%>
+                            <%--修改时 姓名写死 不能修改姓名--%>
+                                <p class="form-control-static" id="empName_update_static"></p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">邮箱</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="email" class="form-control" id="email_update_input" placeholder="ligoudan@163.com">
+                                <span class="help-block"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">性别</label>
+                            <div class="col-sm-10">
+                                <label class="radio-inline">
+                                    <input type="radio" name="gender" id="gender1_update_input" value="M" checked="checked"> 男
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="gender" id="gender2_update_input" value="F"> 女
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">部门</label>
+                            <div class="col-sm-5">
+                                <%----%>
+                                <select class="form-control" name="dId" id="dept_update_select">
+
+                                </select>
+                            </div>
+                        </div>
+
+                    </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="emp_update_btn">修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <%--===============新增 模态窗==================================================--%>
 
 <div class="modal fade" id="empAddModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -177,9 +239,11 @@
             if(item.dId==4){
                 var dIdTd = $("<td></td>").append("实创部");
             }
-            var editBtn = $("<button></button>").addClass("btn btn-primary")
+            var editBtn = $("<button></button>").addClass("btn btn-primary edit_btn")
                 .append($("<span></span>").addClass("glyphicon glyphicon-edit")).append(" 编辑");
-            var delBtn = $("<button></button>").addClass("btn btn-danger")
+           //为编辑按钮添加一个自定义属性，表示当前id
+            editBtn.attr("edit-id",item.empId);
+            var delBtn = $("<button></button>").addClass("btn btn-danger delete_btn")
                 .append($("<span></span>").addClass("glyphicon glyphicon-trash")).append(" 删除");
             var btnTd = $("<td></td>").append(editBtn).append(" ").append(delBtn);
 
@@ -194,12 +258,16 @@
                 .appendTo("#emps_table tbody");
         });
     }
+    var totalRecord,currentPage;
     //解析分页信息(左)
     function build_page_info(data){
         //再次发送ajax请求时，清空原有的数据
         $("#page_info_area").empty();
 
         $("#page_info_area").append("当前是第[ "+ data.extend.pageInfo.pageNum +" ]页，总共有[ " + data.extend.pageInfo.pages +" ]页，总共有[ " + data.extend.pageInfo.total +" ]条数据")
+        totalRecord = data.extend.pageInfo.total;//总数据条数
+        currentPage = data.extend.pageInfo.pageNum;//当前页码数
+
     }
     //解析分页条(右)
     function build_page_nav(data){
@@ -285,8 +353,7 @@
 
 
         //发送ajax请求查出部门信息 显示在新增下拉列表中
-        $("#dept_add_select").empty();
-        getDepartments();
+        getDepartments("#dept_add_select");
 
         //点击按钮调出新增模态窗
         $("#empAddModal").modal({
@@ -294,8 +361,11 @@
         });
     });
 
-    //查出所有部门信息
-    function getDepartments(){
+    //查出所有部门信息并显示在模态窗中
+    function getDepartments(ele){
+        //再次点击时清空上一次的数据 防止叠加
+        $(ele).empty();
+
         $.ajax({
             url:"getAllDepartments",
             dataType: "json",
@@ -306,7 +376,7 @@
                 //遍历部门信息
                 $.each(data.extend.depts,function (){
                     var optionEle = $("<option></option>").append(this.depName).attr("value",this.depId);
-                    optionEle.appendTo("#dept_add_select");
+                    optionEle.appendTo(ele);
                 });
             }
         });
@@ -374,7 +444,7 @@
             $(ele).next("span").text(msg);
         }
     }
-//=====================判断用户名是否重复ajax请求===================================================
+//=====================判断用户名是否重复 ajax请求===================================================
     $("#empName_add_input").change(function (){//绑定change事件发起ajax请求
         var empName = $("#empName_add_input").val();
         $.ajax({
@@ -396,8 +466,6 @@
             }
         })
     })
-
-
 
 
 
@@ -440,18 +508,80 @@
                         show_validate_msg("#empName_add_input","error",data.extend.errorFields.empName)
                     }
                 }
-
-
-
-
             }
 
-        })
+        });
+    });
+
+//===============================================================================
+//===================修改employee部分=================================================
+//===============================================================================
+
+
+    //给编辑按钮绑定on事件
+    $(document).on("click",".edit_btn",function (){
+        // alert("edit")
+        //1.查出部门信息并显示部门列表在编辑模态窗中
+            //发送ajax请求查出部门信息 显示在新增下拉列表中
+        getDepartments("#dept_update_select");
+        //2.查出employee信息 显示在模态窗中
+        getEmployee($(this).attr("edit-id"));//拿empId好难
+
+        //3.把empId传递给编辑的模态窗更新按钮
+        $("#emp_update_btn").attr("edit-id",$(this).attr("edit-id"));
+        //4.弹出编辑模态窗
+        $("#empUpdateModal").modal({
+            backdrop:"static"
+        });
+    });
+
+    function getEmployee(id){
+        $.ajax({
+            url:"emp/"+id,
+            dataType:"json",
+            type: "GET",
+            success:function (data){
+                // console.log(data)
+                var empData = data.extend.emp;
+                $("#empName_update_static").text(empData.empName);//p标签用text()显示
+                $("#email_update_static").val(empData.email);//input标签用val()显示
+                $("#empUpdateModal input[name=gender]").val([empData.gender]);
+                $("#empUpdateModal select").val([empData.dId]);
+
+            }
+        });
+    }
+
+//===================发起ajax请求 修改employee信息=============================================
+
+    //给修改按钮绑定单击事件
+    $("#emp_update_btn").click(function (){
+        //1.验证邮箱是否合法
+        var email = $("#email_update_input").val();
+        var regEmail =  /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+        if(!regEmail.test(email)){
+            show_validate_msg("#email_update_input", "error", "邮箱格式不正确!");
+            return false;
+        }else {//校验符合要求
+            show_validate_msg("#email_update_input", "success", "");
+        }
+
+        //2.发送ajax请求保存更新信息
+        $.ajax({
+            url:"emp/"+$(this).attr("edit-id"),
+            dataType:"json",
+            type:"POST",
+            data:$("#empUpdateModal form").serialize()+"&_method=PUT",
+            success:function (data){
+                // alert(data.msg)
+                //1.关闭修改模态窗
+                $("#empUpdateModal").modal('hide');
+                //2.回到被修改数据的页面
+                to_page(currentPage);
+            }
+        });
+
     })
-
-
-
-
 
 
 

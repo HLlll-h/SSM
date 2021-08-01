@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.lang.invoke.WrongMethodTypeException;
 import java.util.List;
 
 
@@ -34,5 +35,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     public Employee queryEmployeeByName(String empName) {
         Employee employee = employeeDao.selectByName(empName);
         return employee;
+    }
+
+    @Override
+    public Employee queryEmployeeById(Integer empId) {
+        Employee employee = employeeDao.selectById(empId);
+        return employee;
+    }
+
+    @Override
+    public Integer updateEmployee(Employee employee) {
+        Integer nums = employeeDao.updateEmployee(employee);
+        return nums;
     }
 }

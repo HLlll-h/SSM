@@ -10,13 +10,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.validation.Valid;
+import java.lang.invoke.WrongMethodTypeException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +30,9 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
 
-
-    //使用ajax请求查询
+    /**
+     * 使用ajax请求查询所有employee 展示列表
+     */
     @RequestMapping("/emps")
     @ResponseBody
     public Msg getEmployeeWithJson(@RequestParam(value = "pageNo",defaultValue = "1")Integer pageNo){
@@ -49,9 +48,12 @@ public class EmployeeController {
     }
 
 
-    //只适用于BS架构，需使用CS架构+ajax
+    /**
+     * 查询所有employee 展示列表
+     * 只适用于BS架构，需使用CS架构+ajax
+     */
 //    @RequestMapping("/emps")
-    public ModelAndView getEmployee(@RequestParam(value = "pageNo",defaultValue = "1")Integer pageNo){
+    public ModelAndView getAllEmployee(@RequestParam(value = "pageNo",defaultValue = "1")Integer pageNo){
         //使用pageHelper分页插件
         //在查询之前调用startPage 传入页码，以及每页的条数
         PageHelper.startPage(pageNo,5);
@@ -70,7 +72,9 @@ public class EmployeeController {
     }
 
 
-    //新增employee
+    /**
+     * 新增一条employee
+     */
     @RequestMapping(value = "/emp",method = RequestMethod.POST)
     @ResponseBody
     //@Valid注解是使用CSR3030校验 BindingResult result封装校验的结果
@@ -91,7 +95,9 @@ public class EmployeeController {
         }
     }
 
-    //检查用户名是否重复
+    /**
+     * 检查用户名是否重复
+     */
     @RequestMapping(value = "/checkEmpName")
     @ResponseBody
     public Msg checkEmpName(String empName){
@@ -111,6 +117,28 @@ public class EmployeeController {
         }
 
     }
+
+    /**
+     * 根据empId查询employee
+     */
+    @RequestMapping(value = "/emp/{id}",method = RequestMethod.GET)
+    @ResponseBody
+    public Msg getEmployee(@PathVariable("id") Integer empId){
+        Employee employee = employeeService.queryEmployeeById(empId);
+        return Msg.success().add("emp",employee);
+    }
+
+
+    /**
+     * 修改信息
+     */
+    @RequestMapping(value = "/emp/{empId}",method = RequestMethod.PUT)
+    @ResponseBody
+    public Msg updateEmployee(Employee employee){
+        employeeService.updateEmployee(employee);
+        return Msg.success();
+    }
+
 
 
 

@@ -22,5 +22,15 @@ public interface EmployeeService {
      */
     Employee queryEmployeeByName(String empName);
 
+    /**
+     * 根据id查询employee表中一条记录
+     */
+    Employee queryEmployeeById(Integer empId);
+
+    /**
+     * 修改employee表中一条记录
+     */
+    Integer updateEmployee(Employee employee);
+
 
 }

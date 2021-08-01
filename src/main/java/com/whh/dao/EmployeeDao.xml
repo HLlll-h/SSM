@@ -14,7 +14,7 @@
     </delete>
 
     <update id="updateEmployee">
-        update employee set gender = #{gender},email = #{email},dId = #{dId}
+        update employee set gender = #{gender},email = #{email},dId = #{dId} where empId = #{empId}
     </update>
 
     <select id="selectById" resultType="com.whh.domain.Employee"><!--id接口中的方法名;返回值类型的全限定名称-->
